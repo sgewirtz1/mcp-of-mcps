@@ -15,6 +15,51 @@ The model must process and reason about all tool definitions upfront, even for t
 ### 3. 🤯 Increases Hallucinations
 When models see too much irrelevant information, they're more likely to get confused and make mistakes. Loading all tools upfront reduces accuracy.
 
+## The Solution
+
+MCP of MCPs is a meta-server that provides three powerful tools for efficient agent orchestration:
+
+### Tool 1: `get_mcps_servers_overview`
+**Discovery Tool** - This tool returns only tool names without full schemas, giving agents a lightweight overview in seconds instead of loading hundreds of detailed definitions upfront. By showing just what's available without overwhelming details, it prevents confusion and hallucinations while eliminating loading delays.
+
+```javascript
+// Returns:
+// google_drive/download_file
+// google_drive/upload_file
+// slack/send_message
+// database/execute_query
+// ...
+```
+
+
+### Tool 2: `get_tools_overview`  
+**Introspection Tool** - Load only the tools you actually need instead of all 30+ tools, saving thousands of tokens through selective loading. This on-demand approach provides faster responses and focused context that reduces confusion and improves accuracy.
+
+
+```javascript
+// Input: ["google_drive/download_file", "slack/send_message"]
+// Returns: Full tool definitions with:
+// - Parameter schemas
+// - Required vs optional fields
+// - Example usage code
+```
+
+
+### Tool 3: `run_functions_code`
+**Execution Tool** - Data flows directly between tools without round-trips through the model, so a 2MB file transfer uses ~100 tokens instead of 50,000+. The model only sees clean final results instead of noisy intermediate data, executing complex workflows in one shot without processing delays.
+
+```javascript
+// Write code that:
+// - Calls multiple tools in sequence or parallel
+// - Processes and transforms data
+// - Implements complex logic and error handling
+// - Returns only final results to the model
+```
+
+## How The Full Flow Solves All Problems
+
+The three tools work together through **progressive disclosure**: first, `get_mcps_servers_overview` returns just tool names (not full schemas), so the model scans a simple list instead of parsing 500KB of definitions. Next, `get_tools_overview` loads only the 2-3 tools you need instead of all 30+, reducing tokens and giving the model focused context without confusing irrelevant options. Finally, `run_functions_code` executes workflows where data flows directly between tools in memory—intermediate results not get serialized into tokens, they stay as native objects passing from one tool to another while the model only sees the final result. This pattern cuts token usage, speeds up execution by avoiding unnecessary model processing, and eliminates hallucinations by showing only relevant information at each step.
+
 ### Real-World Example
 
 **Traditional Approach:**
@@ -40,50 +85,6 @@ await salesforce.updateRecord({
 The code executes in one operation. Data flows directly between tools. Only the final result returns to the model.
 
 **Total: 2,000 tokens processed (98.7% reduction) ⚡**
-
-## The Solution
-
-MCP of MCPs is a meta-server that provides three powerful tools for efficient agent orchestration:
-
-### Tool 1: `get_mcps_servers_overview`
-**Discovery Tool** - Shows all connected servers and their available tools.
-
-```javascript
-// Returns:
-// google_drive/download_file
-// google_drive/upload_file
-// slack/send_message
-// database/execute_query
-// ...
-```
-
-Use this first to understand what capabilities are available across all connected MCP servers.
-
-### Tool 2: `get_tools_overview`  
-**Introspection Tool** - Get detailed schemas and documentation for specific tools.
-
-```javascript
-// Input: ["google_drive/download_file", "slack/send_message"]
-// Returns: Full tool definitions with:
-// - Parameter schemas
-// - Required vs optional fields
-// - Example usage code
-```
-
-Use this to understand HOW to use specific tools before calling them.
-
-### Tool 3: `run_functions_code`
-**Execution Tool** - Run JavaScript code that orchestrates multiple tool calls.
-
-```javascript
-// Write code that:
-// - Calls multiple tools in sequence or parallel
-// - Processes and transforms data
-// - Implements complex logic and error handling
-// - Returns only final results to the model
-```
-
-This is where the magic happens - data flows between tools without bloating the context window.
 
 ## Key Benefits
 
@@ -187,15 +188,6 @@ Then reference this file in your Cline settings:
 - `timeout`: Timeout in seconds for tool execution (default: 60)
 - `type`: Connection type, always `"stdio"` for MCP servers
 
-
-## How It Works
-
-1. **Server Aggregation**: MCP of MCPs connects to multiple child MCP servers
-2. **Tool Registry**: All tools from all servers are indexed and made discoverable  
-3. **Code Execution**: Agent-written code runs in a secure VM
-5. **Tool Orchestration**: Code can require and call any tool from any connected server
-5. **Result Return**: Only final results flow back to the model's context
-
 ## Learn More
 
 This implementation follows the patterns described in Anthropic's article on code execution with MCP:  
@@ -208,4 +200,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 ISC
-

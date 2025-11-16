@@ -1,6 +1,6 @@
 # MCP of MCPs
 
-A meta-server that aggregates multiple MCP servers and enables efficient code execution for AI agents. Reduces token usage by up to 98.7% while improving speed and reliability.
+A meta-server that aggregates multiple MCP servers and enables efficient code execution for AI agents. Reduces token usage, improving speed and reliability.
 
 ## The Problem
 

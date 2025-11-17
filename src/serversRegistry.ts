@@ -2,6 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { MCPConnection } from "./mcpConnection.js";
 import { ServerInfo } from "./types.js";
+import { convertToolName } from "./utils.js";
 
 /**
  * ServersRegistry manages server connections, clients, and tools
@@ -37,7 +38,8 @@ export class ServersRegistry {
     try {
       // Fetch tools from the server
       const response = await client.listTools();
-
+      // Convert the tool name to ignore syntax error when excute js code in sendbox
+      response.tools.forEach(tool => tool.title = convertToolName(tool.name))
       // Store server info
       const serverInfo: ServerInfo = {
         name: serverName,

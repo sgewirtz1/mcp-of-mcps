@@ -1,5 +1,4 @@
 import { ServerInfo } from "./types.js";
-import { convertToolName } from "./utils.js";
 
 /**
  * MCPToolsParser provides utilities to parse and retrieve tools from MCP servers
@@ -30,7 +29,7 @@ export class MCPToolsParser {
       }
       // For each tool in the server, create a path line
       for (const tool of serverInfo.tools) {
-        lines.push(`${serverName}/${tool.name}`);
+        lines.push(`${serverName}/${tool.title}`);
       }
     }
 
@@ -63,13 +62,12 @@ export class MCPToolsParser {
       if (!serverInfo) {
         throw new Error(`Error: Server '${serverName}' not found`);
       }
-
       // Find the tool
-      const tool = serverInfo.tools.find((t) => t.name === toolName);
+      const tool = serverInfo.tools.find((t) => t.title === toolName);
       if (tool) {
         // Create example usage for this specific tool
-        const exampleUsage = `const ${convertToolName(toolName)} = require('./${serverName}/${convertToolName(toolName)}.cjs');
-module.exports = ${convertToolName(toolName)}({ /* your parameters here */ });`;
+        const exampleUsage = `const ${tool.title} = require('./${serverName}/${tool.title}.cjs');
+module.exports = ${tool.title}({ /* your parameters here */ });`;
         
         // Add the tool with example usage property
         tools.push({

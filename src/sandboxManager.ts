@@ -3,7 +3,6 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { ServerInfo } from "./types.js";
-import { convertToolName } from "./utils.js";
 import { NodeVM } from "vm2";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -69,7 +68,7 @@ export class SandboxManager {
 
     const toolFileContent = `
       const serversInfo = require('serversInfo');
-      async function ${convertToolName(tool.name)}(args) {
+      async function ${tool.title}(args) {
 
           const serverInfo = serversInfo.get("${serverName}");
           if (!serverInfo) {
@@ -86,7 +85,7 @@ export class SandboxManager {
           return response;
       }
 
-      module.exports = ${convertToolName(tool.name)};
+      module.exports = ${tool.title};
   `;
 
     return toolFileContent;
@@ -115,7 +114,7 @@ export class SandboxManager {
 
         // Create a file for each tool
         for (const tool of tools) {
-          const toolFilePath = path.join(serverFolderPath, `${convertToolName(tool.name)}.cjs`);
+          const toolFilePath = path.join(serverFolderPath, `${tool.title}.cjs`);
           const toolFileContent = this.generateToolFile(serverName, tool);
           fs.writeFileSync(toolFilePath, toolFileContent, 'utf-8');
         }

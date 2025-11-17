@@ -101,29 +101,12 @@ The code executes in one operation. Data flows directly between tools. Only the 
 - npm or yarn
 - Configured MCP servers you want to aggregate
 
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/eliavamar/mcp-of-mcps.git
-cd mcp-of-mcps
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Build the project**
-```bash
-npm run build
-```
 
 ### Add to Cline
 
 Add this to your Cline MCP settings file:
 
-**Option 1: Using inline configuration (recommended)**
+**Option 1: Using inline configuration**
 ```json
 {
   "mcpServers": {
@@ -132,9 +115,10 @@ Add this to your Cline MCP settings file:
       "disabled": false,
       "timeout": 60,
       "type": "stdio",
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/absolute/path/to/mcp-of-mcps/build/index.js",
+        "-y",
+        "@dbestai/mcp-of-mcps",
         "--config",
         "[{\"name\":\"weather\",\"command\":\"npx\",\"args\":[\"-y\",\"@h1deya/mcp-server-weather\"]},{\"name\":\"time\",\"command\":\"uvx\",\"args\":[\"mcp-server-time\"]}]"
       ]
@@ -172,9 +156,11 @@ Then reference this file in your Cline settings:
       "disabled": false,
       "timeout": 60,
       "type": "stdio",
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/absolute/path/to/mcp-of-mcps/build/index.js",
+        "-y",
+        "@dbestai/mcp-of-mcps",
+        "--config-file",
         "/absolute/path/to/your/config.json"
       ]
     }

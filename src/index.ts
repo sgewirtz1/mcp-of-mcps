@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { McpOfMcps } from "./mcpOfMcps.js";
 import { loadConfig } from "./utils.js";
 

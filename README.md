@@ -1,25 +1,19 @@
 # MCP of MCPs
 
-A meta-server that aggregates multiple MCP servers and enables efficient code execution for AI agents. Reduces token usage, improving speed and reliability.
+MCP of MCPs is a meta-server that merges all your MCP servers into a single smart endpoint.
+It gives AI agents instant tool discovery, selective schema loading, and massively cheaper execution, so you stop wasting tokens and time.
 
-**New:** Includes persistent database that automatically stores and preserves tool output schemas across sessions, ensuring consistent tool behavior even when mcps servers don't provide complete metadata.
+With persistent tool metadata, semantic search, and direct code execution between tools, it turns chaotic multi-server setups into a fast, efficient, hallucination-free workflow.
+It also automatically analyzes the tools output schemas if needed and preserves them across sessions for consistent behavior.
 
-## The Problem
+In short:<br>
+🚀 Faster automation<br>
+🧠 Cleaner reasoning<br>
+💰 Drastically fewer tokens<br>
+📦 Persistent + analyzed schema metadata<br>
 
-When AI agents connect to multiple MCP servers, they face three critical issues:
+![alt text](docs/mcp-of-mcps.png)
 
-### 1. 🔥 Burns Tokens
-Every tool definition and intermediate result consumes valuable context window space. With hundreds of tools across multiple servers, agents can waste 150,000+ tokens on a single workflow.
-
-### 2. ⏱️ Slows Everything Down  
-The model must process and reason about all tool definitions upfront, even for tools it won't use. This adds significant latency before the agent can even start working.
-
-### 3. 🤯 Increases Hallucinations
-When models see too much irrelevant information, they're more likely to get confused and make mistakes. Loading all tools upfront reduces accuracy.
-
-## The Solution
-
-MCP of MCPs is a meta-server that provides four powerful tools for efficient agent orchestration:
 
 ### Tool 1: `semantic_search_tools`
 **Semantic Discovery Tool** - Search tools by describing the task you want to accomplish. Instead of browsing all of tool names—or when tool names don't clearly indicate what they do—just describe your intent in plain English (e.g., "send notifications", "query database", "process images") and get back only the most relevant tools instantly. This provides a fast and lightweight approach to investigate what tools are available across all connected servers without loading any full tool definitions.

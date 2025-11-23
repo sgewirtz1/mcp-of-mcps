@@ -1,6 +1,6 @@
 {
   "name": "@dbestai/mcp-of-mcps",
-  "version": "3.0.1",
+  "version": "3.0.4",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -19,7 +19,9 @@
   },
   "type": "module",
   "files": [
-    "build"
+    "build",
+    "docs/mcp-of-mcps.png",
+    "README.md"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.21.1",

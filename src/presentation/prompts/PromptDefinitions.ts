@@ -119,24 +119,99 @@ export const TOOL_DEFINITIONS: Tool[] = [
         return result;
       })();
 
+      📋 TOOL RETURN FORMAT:
+      All tools return a standardized object with this structure:
+      {
+        content: [{ type: "text", text: "..." }],  // Array of content items
+        isError: false,                            // Boolean indicating if an error occurred
+        _meta: { serverName: "...", toolName: "..." }
+      }
+
+      To extract data from a tool response:
+      1. ALWAYS check response.isError first - if true, the content contains an error message
+      2. Access response.content[0].text to get the result as a string
+      3. Use safe JSON parsing with try-catch to handle both JSON and plain text responses
+      
+      ⚠️ IMPORTANT: Not all tools return JSON! Some return plain text, especially on errors.
+      Always use try-catch when parsing JSON to avoid crashes.
+
       Common Patterns:
 
-      1️⃣ Single tool call (returns Promise directly):
-      const get_forecast = require('./weather/get_forecast.cjs');
-      module.exports = get_forecast({ latitude: 40.7128, longitude: -74.0060 });
-
-      2️⃣ Sequential tool calls with data flow:
+      1️⃣ Single tool call with safe response parsing:
       module.exports = (async () => {
-        const get_location = require('./geo/get_location.cjs');
-        const get_forecast = require('./weather/get_forecast.cjs');
+        const search_files = require('./google_drive/search_files.cjs');
         
-        const location = await get_location({ city: 'New York' });
-        const weather = await get_forecast({ 
-          latitude: location.lat, 
-          longitude: location.lon 
+        const response = await search_files({
+          query: "name contains 'report' and mimeType='application/pdf'"
         });
         
-        return { location, weather };
+        // Check for errors first
+        if (response.isError) {
+          return { error: 'Search failed', details: response.content[0].text };
+        }
+        
+        // Safely parse JSON response
+        const resultText = response.content[0].text;
+        try {
+          const files = JSON.parse(resultText);
+          return { count: files.length, files };
+        } catch (e) {
+          return { error: 'Invalid JSON response', rawResponse: resultText };
+        }
+      })();
+
+      2️⃣ Sequential tool calls with data flow (download from Google Drive, send to Slack):
+      module.exports = (async () => {
+        const search_files = require('./google_drive/search_files.cjs');
+        const download_file = require('./google_drive/download_file.cjs');
+        const send_message = require('./slack/send_message.cjs');
+        
+        // Find the file
+        const searchResponse = await search_files({
+          query: "name='Q4_Report.pdf'"
+        });
+        
+        if (searchResponse.isError) {
+          return { error: 'Search failed', details: searchResponse.content[0].text };
+        }
+        
+        let files;
+        try {
+          files = JSON.parse(searchResponse.content[0].text);
+        } catch (e) {
+          return { error: 'Invalid search response', rawResponse: searchResponse.content[0].text };
+        }
+        
+        if (files.length === 0) {
+          return { error: 'File not found' };
+        }
+        
+        // Download the file
+        const downloadResponse = await download_file({
+          fileId: files[0].id
+        });
+        
+        if (downloadResponse.isError) {
+          return { error: 'Download failed', details: downloadResponse.content[0].text };
+        }
+        
+        const fileContent = downloadResponse.content[0].text;
+        
+        // Send to Slack
+        const slackResponse = await send_message({
+          channel: '#reports',
+          text: 'Q4 Report ready!',
+          file: fileContent
+        });
+        
+        if (slackResponse.isError) {
+          return { error: 'Slack send failed', details: slackResponse.content[0].text };
+        }
+        
+        return { 
+          success: true, 
+          fileName: files[0].name
+        };
       })();`,
     inputSchema: {
       type: "object",

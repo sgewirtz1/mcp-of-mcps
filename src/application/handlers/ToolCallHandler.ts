@@ -144,11 +144,16 @@ export class ToolCallHandler {
 
     try {
       const result = await this.sandboxManager.execute(code);
+      
+      // The sandbox now returns parsed data directly from tools
+      // Simply stringify the result for output
+      const content = JSON.stringify(result, null, 2);
+      
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(result, null, 2),
+            text: content,
           },
         ],
       };

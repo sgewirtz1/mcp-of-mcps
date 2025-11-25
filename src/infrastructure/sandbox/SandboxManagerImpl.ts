@@ -215,7 +215,8 @@ export class SandboxManagerImpl implements ISandboxManager {
             name: "${tool.name}",
             arguments: args,
           });
-          // Save output to cache
+          
+          // Save full response to cache for schema generation
           const serverCache = toolOutputCache.get("${serverName}");
           if (serverCache) {
             serverCache.push({
@@ -224,7 +225,16 @@ export class SandboxManagerImpl implements ISandboxManager {
             });
           }
           
-          return response;
+          // Return standardized response structure
+          // This provides predictable output that AI can work with consistently
+          return {
+            content: response.content || [],
+            isError: response.isError || false,
+            _meta: {
+              serverName: "${serverName}",
+              toolName: "${tool.name}"
+            }
+          };
       }
 
       module.exports = ${tool.title};
@@ -270,8 +280,9 @@ export class SandboxManagerImpl implements ISandboxManager {
       this.toolOutputCache.set(serverName, []);
     }
   }
-    /**
-   * Clear the entire cache
+  
+  /**
+   * Clear and set service info cache
    */
   clearAndSetServiceInfoCache(serversInfo: Map<string, ServerInfo>): void {
     this.serversInfo.clear();
